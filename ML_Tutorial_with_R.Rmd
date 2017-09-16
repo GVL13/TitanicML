@@ -1,0 +1,115 @@
+---
+title: "Ahmed Besbes' "How to score 0.8134 in Titanic Kaggle Challenge" in the R Ecosystem"
+author: "Greg van Lunteren"
+date: "8/21/2017"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+This is meant to be a companion to Ahmed Besbes' wonderful blog post on building a model for Kaggle's Titanic introductory challenge. He uses Python in his post, and this is meant to do approximately the same steps, but in the R ecosystem. Ahmed's post can be found here: http://ahmedbesbes.com/how-to-score-08134-in-titanic-kaggle-challenge.html and the Kaggle competition can be found here: https://www.kaggle.com/c/titanic
+
+
+# Exploratory Data Analysis
+
+Ahmed breaks this section up into several substeps:
+-Data extraction: we'll load the dataset and have a first look at it.
+-Cleaning: we'll fill in missing values.
+-Plotting: we'll create some interesting charts that'll (hopefully) spot correlations and hidden insights in the data.
+-Assumptions: we'll formulate hypotheses from the charts.
+
+###Import relevant libraries:
+```{r libraryimports, echo=TRUE, include=FALSE}
+install.packages("tidyverse")
+library("tidyverse")
+```
+
+###Import the training and test data:
+```{r dataimports}
+setwd("~/Documents/Programming/R/Titanic")
+traindata <- read_csv("Titanictrain.csv", col_names = TRUE)
+testdata <- read_csv("Titanictest.csv", col_names = TRUE)
+```
+
+We want to make sure that read_csv imported our data in the way we would like, so we should review the results:
+  PassengerId = col_integer(),
+  Survived = col_integer(),
+  Pclass = col_integer(),
+  Name = col_character(),
+  Sex = col_character(),
+  Age = col_double(),
+  SibSp = col_integer(),
+  Parch = col_integer(),
+  Ticket = col_character(),
+  Fare = col_double(),
+  Cabin = col_character(),
+  Embarked = col_character()
+This all looks good--Now we're ready to take a look inside.
+
+```{r datahead, include=TRUE, echo=TRUE}
+head(traindata)
+```
+
+There are clearly some missing values, so lets get some numbers on what we're missing:
+
+```{r datahead, include=TRUE, echo=TRUE}
+summary(traindata)
+```
+
+There are 177 missing age numbers, so we will need to provide values for those. The blog post suggests using the median instead of the mean in this case, so that's what we will do:
+```{r fillingblankages include=TRUE, echo=TRUE}
+traindata$Age[is.na(traindata$Age)] = median(traindata$Age, na.rm=TRUE)
+```
+This fills every blank with the median age of 28.
+
+###Graphs
+
+Convert 0/1's to Lived/Died, etc, because ggplot2 doesn't handle 1/0 binaries very well, and make a percentage table
+```{r graph_friendly_data}
+traindataplot <- traindata
+traindataplot$Survived[traindataplot$Survived == 1] <- "Lived"
+traindataplot$Survived[traindataplot$Survived == 0] <- "Died"
+traindataplot$Embarked[traindataplot$Embarked == "S"] <- "England"
+traindataplot$Embarked[traindataplot$Embarked == "Q"] <- "Ireland"
+traindataplot$Embarked[traindataplot$Embarked == "C"] <- "France"
+
+#stats <- traindataplot %>%
+#  group_by(Age) %>%
+#  summarise(n = )
+
+```
+
+
+[Survival vs sex]
+
+```{r initialGraphs}
+#SurvSex <- ggplot(traindata, aes(Survived, ..count..)) + geom_bar(aes(fill = Sex), position = "dodge")
+#SurvFare <- ggplot(traindata, aes(Fare,Survived)) + geom_bar(stat = "Identity")
+#SurvFare <- ggplot(traindata, aes(Survived, ..count..)) + geom_bar(aes(fill = Fare), position = "dodge")
+#SurvDepart <- ggplot(traindata, aes(Survived, ..count..)) + geom_bar(aes(fill = Sex), position = "dodge")
+
+SurvSex <- ggplot(data = traindataplot,aes(Sex, fill = Survived)) + geom_bar()
+SurvAge <- ggplot(data = traindataplot,aes(Age, fill = Survived)) + geom_histogram(binwidth = 3)
+SurvFare <- ggplot(data = traindataplot,aes(Fare, fill = Survived)) + geom_histogram(binwidth = 10)
+SurvDepart <- ggplot(data = traindataplot,aes(Embarked, fill = Survived)) + geom_bar()
+
+```
+
+[Survival vs age]
+
+[Survival vs fare]
+
+[Survival vs departure site]
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
