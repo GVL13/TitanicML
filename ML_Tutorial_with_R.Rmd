@@ -67,13 +67,16 @@ This fills every blank with the median age of 28.
 ###Graphs
 
 Convert 0/1's to Lived/Died, etc, because ggplot2 doesn't handle 1/0 binaries very well, and make a percentage table
-```{r graph_friendly_data}
+```{r graph_friendly_data, echo=TRUE}
 traindataplot <- traindata
 traindataplot$Survived[traindataplot$Survived == 1] <- "Lived"
 traindataplot$Survived[traindataplot$Survived == 0] <- "Died"
 traindataplot$Embarked[traindataplot$Embarked == "S"] <- "England"
 traindataplot$Embarked[traindataplot$Embarked == "Q"] <- "Ireland"
 traindataplot$Embarked[traindataplot$Embarked == "C"] <- "France"
+traindataplot$Pclass[traindataplot$Pclass == "1"] <- "1st"
+traindataplot$Pclass[traindataplot$Pclass == "2"] <- "2nd"
+traindataplot$Pclass[traindataplot$Pclass == "3"] <- "3rd"
 
 #stats <- traindataplot %>%
 #  group_by(Age) %>%
@@ -82,26 +85,43 @@ traindataplot$Embarked[traindataplot$Embarked == "C"] <- "France"
 ```
 
 
-[Survival vs sex]
 
-```{r initialGraphs}
-#SurvSex <- ggplot(traindata, aes(Survived, ..count..)) + geom_bar(aes(fill = Sex), position = "dodge")
-#SurvFare <- ggplot(traindata, aes(Fare,Survived)) + geom_bar(stat = "Identity")
-#SurvFare <- ggplot(traindata, aes(Survived, ..count..)) + geom_bar(aes(fill = Fare), position = "dodge")
-#SurvDepart <- ggplot(traindata, aes(Survived, ..count..)) + geom_bar(aes(fill = Sex), position = "dodge")
+
+```{r initialGraphs, include=TRUE, echo=TRUE}
 
 SurvSex <- ggplot(data = traindataplot,aes(Sex, fill = Survived)) + geom_bar()
 SurvAge <- ggplot(data = traindataplot,aes(Age, fill = Survived)) + geom_histogram(binwidth = 3)
 SurvFare <- ggplot(data = traindataplot,aes(Fare, fill = Survived)) + geom_histogram(binwidth = 10)
 SurvDepart <- ggplot(data = traindataplot,aes(Embarked, fill = Survived)) + geom_bar()
-
+plot(SurvSex)
+plot(SurvAge)
+plot(SurvFare)
+plot(SurvDepart)
+SurvAgeFare <- ggplot(data = traindataplot,aes(Age,Fare,color = Survived)) + geom_point()
+plot(SurvAgeFare)
+SurvClass <- ggplot(data = traindataplot,aes(Pclass,fill=Survived)) + geom_bar()
+plot(SurvClass)
 ```
 
-[Survival vs age]
+[COMMENTARY HERE]
 
-[Survival vs fare]
+# Feature Engineering
+The basic analyses on the data in the previous section yielded some insights, but Ahmed outlines a number of fields that could yield more data with some creative processing. This will include pulling titles out of names, filling in blanks, replacing age more intelligently, and other techniques to get the most from the data.
 
-[Survival vs departure site]
+Before anything else, it's important to combine the training and test datasets so that the datasets match after all the feature engineering steps.
+
+We'll need to add the "Survived" column to the Test dataset in order to merge them. We want to do this in a way where it will be easy to separate them afterwards:
+```{r mergeTrainTest,echo=TRUE}
+testdata$Survived <- c(1:nrow(testdata))
+testdata$Survived <- NA
+testdata$Set <- "Test"
+traindata$Set <- "Train"
+fullset <- rbind(traindata,testdata)
+summary(fullset)
+#get summary post rbind
+```
+
+
 
 
 ## Including Plots
