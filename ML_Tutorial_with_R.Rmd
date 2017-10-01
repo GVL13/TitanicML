@@ -118,18 +118,40 @@ testdata$Set <- "Test"
 traindata$Set <- "Train"
 fullset <- rbind(traindata,testdata)
 summary(fullset)
-#get summary post rbind
+
 ```
+The combination was successful, as the number of rows (1309) is equal to the sum of the training (891) and test (418) datasets. Note that we still have NA's in a few columns: Fare, Embarked (from the graph section), and Age (which we need to redo according to Ahmed's stratifications)
+
+## Extracting Passenger Titles
+Each name has a title in it, from standard titles like Mr, Miss, Mrs, and Dr to more unusual, like Master, Major, Dona, or Jonkheer. The title dictionary that Ahmed created is as follows:
+
+ Title_Dictionary = {
+                        "Capt":       "Officer",
+                        "Col":        "Officer",
+                        "Major":      "Officer",
+                        "Jonkheer":   "Royalty",
+                        "Don":        "Royalty",
+                        "Sir" :       "Royalty",
+                        "Dr":         "Officer",
+                        "Rev":        "Officer",
+                        "the Countess":"Royalty",
+                        "Dona":       "Royalty",
+                        "Mme":        "Mrs",
+                        "Mlle":       "Miss",
+                        "Ms":         "Mrs",
+                        "Mr" :        "Mr",
+                        "Mrs" :       "Mrs",
+                        "Miss" :      "Miss",
+                        "Master" :    "Master",
+                        "Lady" :      "Royalty"
+                        }
+
+[[[Obviously this isn't quite in the format that R can use (Tuples), so we can convert to.......]]]
 
 
 
 
-## Including Plots
+## Adding the Age
 
-You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
